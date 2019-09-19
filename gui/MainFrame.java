@@ -10,7 +10,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,14 +158,10 @@ public class MainFrame extends JFrame implements KeyListener {
         JMenu fileMenu = new JMenu("File");
 
         JMenuItem novaKompozicija = new JMenuItem("Ucitaj novu kompoziciju");
-        JMenuItem exportData = new JMenuItem("Export data");
-        JMenuItem importData = new JMenuItem("Import data");
-        JMenuItem save = new JMenuItem("Save");
+        JMenu exportData = new JMenu("Export data");
 
         fileMenu.add(novaKompozicija);
         fileMenu.add(exportData);
-        fileMenu.add(importData);
-        fileMenu.add(save);
 
         novaKompozicija.addActionListener(new ActionListener() {
             @Override
@@ -210,10 +208,52 @@ public class MainFrame extends JFrame implements KeyListener {
             }
         });
 
-        exportData.addActionListener(new ActionListener() {
+        JMenuItem exportMidi = new JMenuItem("Eksportruj MIDI");
+        exportData.add(exportMidi);
+        exportMidi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                ispisNota.removeFirst();
+                if(snimac.isZavrsio()){
+                    JFrame parentFrame = new JFrame();
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Specify a file to save");
+
+                    int userSelection = fileChooser.showSaveDialog(parentFrame);
+
+                    if (userSelection == JFileChooser.APPROVE_OPTION) {
+                        File fileToSave = fileChooser.getSelectedFile();
+                        System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+                        MidiFormater midiFormater = new MidiFormater(fileToSave.getAbsolutePath()+".MIDI",snimac.getListaUnetihSimbola());
+                        midiFormater.format();
+                    }
+                }
+            }
+        });
+
+        JMenuItem exportTxt = new JMenuItem("Eksportuj TXT");
+        exportData.add(exportTxt);
+        exportTxt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if(snimac.isZavrsio()){
+                    JFrame parentFrame = new JFrame();
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Specify a file to save");
+
+                    int userSelection = fileChooser.showSaveDialog(parentFrame);
+
+                    if (userSelection == JFileChooser.APPROVE_OPTION) {
+                        File fileToSave = fileChooser.getSelectedFile();
+                        System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+
+                        TextFormater textFormater = new TextFormater(fileToSave.getAbsolutePath()+".txt",snimac.getListaUnetihSimbola());
+                        try {
+                            textFormater.format();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         });
 
@@ -368,39 +408,47 @@ public class MainFrame extends JFrame implements KeyListener {
         });
 
         //Buttons -------------------------------------
-        svirajAutomatski=new JButton("Sviraj automatski");
-        svirajAutomatski.setFocusable(false);
-        svirajAutomatski.addActionListener(new ActionListener() {
+        nastaviAutomatskoSviranje=new JButton("PUSTI");
+        nastaviAutomatskoSviranje.setFocusable(false);
+        nastaviAutomatskoSviranje.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(cdl.isUcitana()) {
+                if(cdl.isUcitana()){
                     System.out.println(Akord.getMaxDuzinaAkorda());
                     player.resumee();
-                }else {
+
+                    nastaviAutomatskoSviranje.setBackground(Color.orange);
+                    nastaviAutomatskoSviranje.setForeground(Color.WHITE);
+
+                    pauzirajAutomatskoSviranje.setBackground(null);
+                    pauzirajAutomatskoSviranje.setForeground(Color.black);
+
+                }
+                else {
                     System.out.println("Ucitaj kompoziciju!");
                 }
             }
         });
 
-        nastaviAutomatskoSviranje=new JButton("nastavi");
-        nastaviAutomatskoSviranje.setFocusable(false);
-        nastaviAutomatskoSviranje.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                if(cdl.isUcitana()) player.resumee();
-            }
-        });
-
-        pauzirajAutomatskoSviranje = new JButton("pauza");
+        pauzirajAutomatskoSviranje = new JButton("PAUZIRAJ");
         pauzirajAutomatskoSviranje.setFocusable(false);
         pauzirajAutomatskoSviranje.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(cdl.isUcitana()) player.pause();
+                if(cdl.isUcitana()){
+                    player.pause();
+
+                    pauzirajAutomatskoSviranje.setBackground(Color.orange);
+                    pauzirajAutomatskoSviranje.setForeground(Color.WHITE);
+
+                    nastaviAutomatskoSviranje.setBackground(null);
+                    nastaviAutomatskoSviranje.setForeground(Color.black);
+
+                }
             }
         });
 
-        snimaj = new JButton("Snimaj");
+        snimaj = new JButton("SNIMAJ");
         snimaj.setFocusable(false);
         snimaj.addActionListener(new ActionListener() {
             @Override
@@ -414,7 +462,7 @@ public class MainFrame extends JFrame implements KeyListener {
             }
         });
 
-        zavrsiSnimanje = new JButton("Zavrsi");
+        zavrsiSnimanje = new JButton("ZAVRSI");
         zavrsiSnimanje.setFocusable(false);
         zavrsiSnimanje.addActionListener(new ActionListener() {
             @Override
@@ -426,7 +474,6 @@ public class MainFrame extends JFrame implements KeyListener {
                 snimaj.setForeground(Color.black);
 
                 ArrayList<MuzickiSimbol> lista = snimac.getListaUnetihSimbola();
-                System.out.println("Usao");
                 for (MuzickiSimbol ms:lista) {
                     System.out.println(ms);
                 }
@@ -435,11 +482,10 @@ public class MainFrame extends JFrame implements KeyListener {
         });
 
         //Panel za dugmad za sviranje
-        JPanel dugmadPanel = new JPanel(new GridLayout(3,1));
+        JPanel dugmadPanel = new JPanel(new GridLayout(2,1));
         dugmadPanel.setBorder(new EmptyBorder(10,10,10,10));
-        dugmadPanel.add(svirajAutomatski);
-        dugmadPanel.add(pauzirajAutomatskoSviranje);
         dugmadPanel.add(nastaviAutomatskoSviranje);
+        dugmadPanel.add(pauzirajAutomatskoSviranje);
         panel3.add(dugmadPanel);
 
         //Panel za checkBoxove

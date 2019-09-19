@@ -60,6 +60,16 @@ public class Akord extends MuzickiSimbol {
                 '}';
     }
 
+    public String toStringForTxt(){
+        String note = "";
+
+        for (Nota n:nizNota) {
+            note = note + n.getTaster();
+        }
+
+        return "["+note+"]";
+    }
+
     public void setPritisnuto(String s){
         int index=0;
 

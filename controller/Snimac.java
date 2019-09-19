@@ -8,6 +8,8 @@ public class Snimac{
 
     private boolean ukljucen=false;
     private boolean zavrsio = false;
+    private boolean first = true;
+    private boolean firstAdded = false;
 
     private ArrayList<MuzickiSimbol> listaUnetihSimbola=new ArrayList<MuzickiSimbol>();
 
@@ -52,6 +54,8 @@ public class Snimac{
         listaUnetihSimbola.removeAll(listaUnetihSimbola);
         listaNota.removeAll(listaNota);
         zavrsio=false;
+        first=true;
+        firstAdded=false;
     }
 
     public long checkTime(){
@@ -60,22 +64,34 @@ public class Snimac{
     }
 
     public void dodajPauzu(Trajanje trajanje){
-        listaUnetihSimbola.add(new Pauza(trajanje));
+        if(firstAdded) {
+            listaUnetihSimbola.add(new Pauza(trajanje));
+        }
     }
 
     public void dodajAkord(){
         System.out.println("Dodat akord");
         if(listaNota.size()==1){
+            listaNota.get(0).setTrajanje(Trajanje.OSMINA);
+            listaNota.get(0).setJedina(true);
             listaUnetihSimbola.add(listaNota.get(0));
+            if(!firstAdded) firstAdded=true;
         }else{
             listaUnetihSimbola.add(new Akord(listaNota));
+            if(!firstAdded) firstAdded=true;
         }
         listaNota.removeAll(listaNota);
         akord=false;
     }
 
     public void dodaj(long cnt,long time,Nota nota){
-        long vreme = checkTime();
+        long vreme;
+        if(first){
+            first=false;
+            vreme = 0;
+        }
+        else vreme = checkTime();
+
         zadnjiUnos=time;
 
         if(vreme<=osmina){
@@ -89,6 +105,7 @@ public class Snimac{
             if(akord==true) dodajAkord();
             nota.setTrajanje(Trajanje.OSMINA);
             listaUnetihSimbola.add(nota);
+            if(!firstAdded) firstAdded=true;
         }
         else if(vreme>=cetvrtina){
             System.out.println("Dodato u cetvtina");
@@ -96,6 +113,7 @@ public class Snimac{
             if (akord==true) dodajAkord();
             nota.setTrajanje(Trajanje.CETVRTINA);
             listaUnetihSimbola.add(nota);
+            if(!firstAdded) firstAdded=true;
         }
     }
 }

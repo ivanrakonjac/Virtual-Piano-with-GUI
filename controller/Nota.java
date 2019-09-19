@@ -6,12 +6,21 @@ public class Nota extends MuzickiSimbol{
     private String opis;
     private String broj;
     private boolean povisena;
+    private boolean jedina=false;
 
     public Nota(String taster,String opis,String broj,boolean povisena){
         this.taster=taster;
         this.opis=opis;
         this.broj=broj;
         this.povisena=povisena;
+    }
+
+    public boolean isJedina() {
+        return jedina;
+    }
+
+    public void setJedina(boolean jedina) {
+        this.jedina = jedina;
     }
 
     public String getOpis() {
@@ -42,6 +51,7 @@ public class Nota extends MuzickiSimbol{
                 ", broj='" + broj + '\'' +
                 ", povisena=" + povisena +
                 ", trajanje=" + trajanje +
+                ", jedina=" + jedina +
                 '}';
     }
 }

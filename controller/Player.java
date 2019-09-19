@@ -32,6 +32,10 @@ public class Player extends Thread{
         start();
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
     public void setMapaDirki(Map<Character, Dugme> mapaDirki) {
         this.mapaDirki = mapaDirki;
     }
@@ -169,7 +173,7 @@ public class Player extends Thread{
         if(sledecaZaSviranje+1<listaMuzickihSimbola.size()){
             if(listaMuzickihSimbola.get(sledecaZaSviranje) instanceof Pauza) System.out.println("Zaustavljeno na pauzu");
             else if(listaMuzickihSimbola.get(sledecaZaSviranje) instanceof Akord) System.out.println("Akord treba da se odvirsa");
-            else System.out.println("Sledeca nota koja treba da bude odsvirana je: " + ((Nota) listaMuzickihSimbola.get(sledecaZaSviranje + 1)).getTaster());
+            else if(listaMuzickihSimbola.get(sledecaZaSviranje+1) instanceof Nota)System.out.println("Sledeca nota koja treba da bude odsvirana je: " + ((Nota) listaMuzickihSimbola.get(sledecaZaSviranje + 1)).getTaster());
         }
     }
 
@@ -179,12 +183,12 @@ public class Player extends Thread{
             if(sledecaZaSviranje<listaMuzickihSimbola.size()){
                 if(listaMuzickihSimbola.get(ispisNota.getRedniBrZaIspis()) instanceof Pauza) System.out.println("Zaustavljeno na pauzu");
                 else if(listaMuzickihSimbola.get(ispisNota.getRedniBrZaIspis()) instanceof Akord) System.out.println("Zaustavljeno na akordu" + listaMuzickihSimbola.get(ispisNota.getRedniBrZaIspis()));
-                else System.out.println("Sledeca nota koja treba da bude odsvirana na klaviru je: " + ((Nota) listaMuzickihSimbola.get(sledecaZaSviranje)).getTaster());
+                else if(listaMuzickihSimbola.get(ispisNota.getRedniBrZaIspis()) instanceof Nota)System.out.println("Sledeca nota koja treba da bude odsvirana na klaviru je: " + ((Nota) listaMuzickihSimbola.get(sledecaZaSviranje)).getTaster());
             }
         }
         synchronized (pauseLock) {
             paused = false;
-            pauseLock.notifyAll(); // Unblocks thread
+            pauseLock.notifyAll();
         }
     }
 
